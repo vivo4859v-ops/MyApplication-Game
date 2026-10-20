@@ -19,10 +19,10 @@ class GameOver : AppCompatActivity() {
         ivNewHighest = findViewById(R.id.ivNewHeighest)
         tvPoints = findViewById(R.id.tvPoints)
 
-        // รับค่าคะแนนที่ถูกส่งข้ามมาทาง Intent
+        // รับค่าคะแนนที่ถูกส่งมา
         val points = intent.extras?.getInt("points") ?: 0
 
-        // ถ้าทำคะแนนได้ 240 แต้ม (เคลียร์เกมหรือทำสถิติสูงสุด) ให้แสดงรูปป้ายพิเศษขึ้นมา
+        // ถ้าได้ 240 ได้รูปพิเศษ
         if (points == 240) {
             ivNewHighest.visibility = View.VISIBLE
         }

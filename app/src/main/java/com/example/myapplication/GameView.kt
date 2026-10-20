@@ -17,47 +17,85 @@ import android.view.MotionEvent
 
 class GameView(context: Context) : View(context) {
 
-    // ตัวแปรเก็บพิกัดตำแหน่งลูกบอล
     var ballX: Float = 0f
     var ballY: Float = 0f
 
-    // เรียกใช้คลาส Velocity ที่เราสร้างไว้ก่อนหน้านี้ (ความเร็วแกน X=25, Y=32)
+
+
+
+    // เรียกใช้ Velocity
     var velocity = Velocity(25, 32)
 
-    // ตัวแปรสำหรับระบบลูปเวลาในเกม
+
+
+
     lateinit var gameHandler: Handler
     val updateMillis: Long = 30
     lateinit var runnable: Runnable
 
-    // เครื่องมือพู่กันสำหรับวาดรูป (Paint) และขนาดตัวอักษร
+
+
+
+
+
+    // ยังไม่ได้เก็บค่าอะไรเอาไว้
     var textPaint = Paint()
     var healthPaint = Paint()
     var brickPaint = Paint()
     val textSize: Float = 120f
 
-    // ตัวแปรพิกัดไม้กระดาน (Paddle) และการลากนิ้ว
+
+
+
+
+    // ตำแหน่งไม้กระดาน และจุดที่นิวจิ้ม
     var paddleX: Float = 0f
     var paddleY: Float = 0f
     var oldX: Float = 0f
     var oldPaddleX: Float = 0f
 
-    // คะแนนของผู้เล่น เริ่มต้นที่ 0
+
+
+
+
+
+
     var points: Int = 0
     var life: Int = 3
+
+
+    //รูปบอลกับ ไม้กระดาน
     lateinit var ball: Bitmap
     lateinit var paddle: Bitmap
+
+
+
+
     var dWidth: Int = 0
     var dHeight: Int = 0
     var ballWidth: Int = 0
     var ballHeight: Int = 0
+
+
+
+    //เสียง
     lateinit var mpHit: MediaPlayer
     lateinit var mpMiss: MediaPlayer
     lateinit var mpBreak: MediaPlayer
+
+
+
+
     var random = Random()
-    var bricks = arrayOfNulls<Brick>(30)
+    var bricks = arrayOfNulls<Brick>(60)
     var numBricks: Int = 0
     var brokenBricks: Int = 0
     var gameOver: Boolean = false
+
+
+
+
+
 
     init {
         ball = BitmapFactory.decodeResource(resources, R.drawable.ball)
@@ -92,6 +130,11 @@ class GameView(context: Context) : View(context) {
         createBricks()
     }
 
+
+
+
+
+
     private fun createBricks() {
         val brickWidth = dWidth / 8
         val brickHeight = dHeight / 16
@@ -103,25 +146,28 @@ class GameView(context: Context) : View(context) {
         }
     }
 
+
+
+
+
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         canvas.drawColor(Color.BLACK)
 
-        // ขยับตำแหน่งลูกบอลตามค่าความเร็ว
         ballX += velocity.x
         ballY += velocity.y
 
-        // ถ้าลูกบอลชนขอบซ้ายหรือขวา ให้เด้งกลับทิศทาง
+        // หรือ
         if (ballX >= dWidth - ball.width || ballX <= 0) {
             velocity.x *= -1
         }
 
-        // ถ้าลูกบอลชนขอบบน ให้เด้งกลับลงมา
         if (ballY <= 0) {
             velocity.y *= -1
         }
 
-        // ถ้าลูกบอลตกเลยไม้กระดานลงไปด้านล่าง (ผู้เล่นรับไม่ทัน)
+        // ถ้ารับไม่ทัน ยาวเกินขี้เกียจละ
         if (ballY > paddleY + paddle.height) {
             ballX = (1 + random.nextInt(dWidth - ball.width - 1)).toFloat()
             ballY = (dHeight / 3).toFloat()
@@ -139,6 +185,8 @@ class GameView(context: Context) : View(context) {
                 return
             }
         }
+
+        // เช็คชนไม่กระดาษ ไปอ่านเอาเลย
         if (((ballX + ball.width) >= paddleX)
             && (ballX <= paddleX + paddle.width)
             && (ballY + ball.height >= paddleY)
@@ -152,6 +200,8 @@ class GameView(context: Context) : View(context) {
             velocity.y = (velocity.y + 1) * -1
         }
 
+
+        //วาดบอลกับไม้
         canvas.drawBitmap(ball, ballX, ballY, null)
         canvas.drawBitmap(paddle, paddleX, paddleY, null)
         for (i in 0 until numBricks) {
@@ -166,7 +216,13 @@ class GameView(context: Context) : View(context) {
                 )
             }
         }
+
+
+        //วาดคะแนน
         canvas.drawText("" + points, 20f, textSize, textPaint)
+
+
+        //วาดเลือด
         if (life == 2) {
             healthPaint.color = Color.YELLOW
         } else if (life == 1) {
@@ -179,6 +235,9 @@ class GameView(context: Context) : View(context) {
             80f,
             healthPaint
         )
+
+
+        //อิฐแตก
         for (i in 0 until numBricks) {
             val b = bricks[i]
             if (b != null && b.isVisible) {
@@ -196,7 +255,7 @@ class GameView(context: Context) : View(context) {
                     points += 10
                     brokenBricks++
 
-                    if (brokenBricks == 24) {
+                    if (brokenBricks == numBricks) {
                         launchGameOver()
                     }
                 }
